@@ -10,10 +10,12 @@ export enum Gender {
 
 @Entity('user_account')
 export class UserAccount extends GeneralEntity {
+  @Column({ type: 'varchar', length: 15 })
   @IsString()
   @MinLength(3)
   firstName: string;
 
+  @Column({ type: 'varchar', length: 15 })
   @IsString()
   @MinLength(3)
   lastName: string;
@@ -21,6 +23,7 @@ export class UserAccount extends GeneralEntity {
   @IsEnum(Gender)
   gender: string;
 
+  @Column({ type: 'timestamp' })
   @IsDate()
   dateOfBirth: Date;
 

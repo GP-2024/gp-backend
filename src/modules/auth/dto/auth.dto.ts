@@ -31,7 +31,7 @@ export class AuthDto {
 
   @IsDate()
   dateOfBirth: Date;
-  
+
   @IsString()
   @IsOptional()
   country?: string;

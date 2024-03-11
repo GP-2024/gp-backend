@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Get, HttpStatus, Injectable, Req, UseGuards } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class AuthService {

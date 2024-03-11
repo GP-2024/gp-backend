@@ -1,5 +1,5 @@
 import {IsEmail, IsNotEmpty, IsString } from "@nestjs/class-validator";
-import { IsDate, IsEnum, IsOptional, MinLength } from "class-validator";
+import { IsDate, IsEnum, IsNumber, IsOptional, MinLength } from "class-validator";
 
 export enum Gender {
   MALE = 'MALE',
@@ -39,6 +39,15 @@ export class AuthDto {
   @IsNotEmpty()
   @IsString()
   password: string;
+
+  @IsString()
+  passwordHash : string
+
+  @IsString()
+  PasswordSalt : string
+
+  @IsNumber()
+  HashAlgorithmId : number
 
 }
 

@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable } from "@nestjs/common";
+import { UserService } from "../user/user.service";
+import { AuthDto } from "./dto/auth.dto";
+// import { Tokens } from "./types";
+import * as argon2 from "argon2";
+import { updateDTO } from "./_helpers/updateDto";
+import * as process from "process";
+
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+    constructor(private readonly userService: UserService) {
+    }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+    async signUp(signUpData: AuthDto): Promise<{ message: string }> {
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+        const hashType: 0 | 1 | 2 = +process.env.ARGON_TYPE as 0 | 1 | 2;
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+        const hash = await argon2.hash(signUpData.password, {
+            saltLength: +process.env.ARGON_SALT_LENGTH,
+            parallelism: +process.env.ARGON_PARALLELISM,
+            memoryCost: +process.env.ARGON_MEMORYCOST,
+            hashLength: +process.env.ARGON_HASH_LENGTH,
+            type: hashType,
+        });
+
+        updateDTO.updateDtoAuth(hash, signUpData);
+        const [userCredentials, userAccountData] = updateDTO.separateObjects(signUpData);
+
+        try {
+            await this.userService.createUserLoginData(userCredentials);
+            await this.userService.createUserAccount(userAccountData);
+        } catch (error) {
+           throw error;
+        }
+        return { message: "User Registered Successful" };
+    }
+
 }

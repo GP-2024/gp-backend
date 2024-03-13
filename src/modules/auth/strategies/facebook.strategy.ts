@@ -11,7 +11,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       clientSecret: configservice.get<string>('APP_SECRET'),
       callbackURL: 'http://localhost:3000/auth/facebook/redirect',
       scope: 'email',
-      profileFields: ['emails', 'name'],
+      profileFields: ['emails', 'name', 'photos', 'displayName'],
     });
   }
 
@@ -21,6 +21,8 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
+      displayName: profile.displayName,
+      photos: profile.photos,
     };
     const payload = {
       user,

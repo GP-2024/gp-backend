@@ -28,18 +28,18 @@ export default abstract class GeneralEntity extends BaseEntity {
     @IsDate()
     deletedAt?: Date;
 
-    @ManyToOne("UserLogin")
+    @ManyToOne("Users")
     @JoinColumn({ name: "createdBy", referencedColumnName: "username" })
     @Index()
     @IsString()
     createdBy?: string;
 
-    @ManyToOne("UserLogin")
+    @ManyToOne("Users")
     @JoinColumn({ name: "updatedBy", referencedColumnName: "username" })
     @IsString()
     updatedBy?: string;
 
-    @ManyToOne("UserLogin")
+    @ManyToOne("Users")
     @JoinColumn({ name: "deletedBy", referencedColumnName: "username" })
     @IsString()
     deletedBy?: string;

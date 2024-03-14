@@ -1,5 +1,6 @@
 import {IsEmail, IsNotEmpty, IsString } from "@nestjs/class-validator";
 import { IsDate, IsEnum, IsNumber, IsOptional, MinLength } from "class-validator";
+import { Transform } from "class-transformer";
 
 export enum Gender {
   MALE = 'MALE',
@@ -29,6 +30,7 @@ export class AuthDto {
   @IsEnum(Gender)
   gender: string;
 
+  @Transform(({ value }) => new Date(value))
   @IsDate()
   dateOfBirth: Date;
 
@@ -40,14 +42,7 @@ export class AuthDto {
   @IsString()
   password: string;
 
-  @IsString()
-  passwordHash : string
 
-  @IsString()
-  PasswordSalt : string
-
-  @IsNumber()
-  HashAlgorithmId : number
 
 }
 

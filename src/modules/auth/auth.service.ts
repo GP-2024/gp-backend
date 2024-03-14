@@ -10,10 +10,10 @@ import * as process from 'process';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async signUp(signUpData: AuthDto): Promise<{ message: string }> {
+  async signUp(authDto: AuthDto): Promise<{ message: string }> {
     const hashType: 0 | 1 | 2 = +process.env.ARGON_TYPE as 0 | 1 | 2;
 
-    const hash = await argon2.hash(signUpData.password, {
+    const hash = await argon2.hash(authDto.password, {
       saltLength: +process.env.ARGON_SALT_LENGTH,
       parallelism: +process.env.ARGON_PARALLELISM,
       memoryCost: +process.env.ARGON_MEMORYCOST,
@@ -21,15 +21,9 @@ export class AuthService {
       type: hashType,
     });
 
-    updateDTO.updateDtoAuth(hash, signUpData);
-    const [userCredentials, userAccountData] = updateDTO.separateObjects(signUpData);
+    updateDTO.updateDtoAuth(hash, authDto);
 
-    try {
-      await this.userService.createUserLoginData(userCredentials);
-      await this.userService.createUserAccount(userAccountData);
-    } catch (error) {
-      throw error;
-    }
+      await this.userService.createUserAccount(authDto);
     return { message: 'User Registered Successful' };
   }
 }

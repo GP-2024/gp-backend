@@ -1,6 +1,6 @@
-import { AuthDto } from "../dto/auth.dto";
+import { SignUpDto } from "../dto/sign-up.dto";
 
-function updateDtoAuth(hashPassword: string, signUpData: AuthDto): void {
+function updateDtoAuth(hashPassword: string, signUpData: SignUpDto): void {
     signUpData.password = hashPassword;
 }
 

@@ -8,7 +8,7 @@ export enum Gender {
 }
 
 
-export class AuthDto {
+export class SignUpDto {
 
   @IsEmail()
   @IsNotEmpty()

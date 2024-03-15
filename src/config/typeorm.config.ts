@@ -14,7 +14,8 @@ export default class TypeOrmConfig {
       synchronize: configService.get<string>('DB_SYNC') === 'true',
       logging: configService.get<string>('DB_LOGGING') === 'true',
       ssl: configService.get<string>('DB_SSL') === 'true',
-      migrations: [`${__dirname}/../../db/migrations/*{.ts,.js)`],
+      dropSchema: configService.get<string>('DB_DROP') === 'true',
+      migrations: [__dirname + '/../../db/migrations/*{.ts,.js)'],
       migrationsTableName: 'migrations',
     };
   }

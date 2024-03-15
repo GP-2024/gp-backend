@@ -8,12 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from '../user/entities/users.entity';
 
 @Module({
-  imports: [
-    JwtModule.register({}),
-    TypeOrmModule.forFeature([Users]), // add this line
-
-    UserModule,
-  ],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Users]), UserModule],
   controllers: [AuthController],
   providers: [AuthService, FacebookStrategy],
 })

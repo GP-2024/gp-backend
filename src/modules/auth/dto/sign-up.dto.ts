@@ -1,15 +1,13 @@
-import {IsEmail, IsNotEmpty, IsString } from "@nestjs/class-validator";
-import { IsDate, IsEnum, IsNumber, IsOptional, MinLength } from "class-validator";
-import { Transform } from "class-transformer";
+import { IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
 }
 
-
 export class SignUpDto {
-
   @IsEmail()
   @IsNotEmpty()
   @IsString()
@@ -27,12 +25,16 @@ export class SignUpDto {
   @MinLength(3)
   lastName: string;
 
-  @IsEnum(Gender)
-  gender: string;
+  // // temporary solution (is optioanl) to handle facebook login
+  // @IsOptional()
+  // @IsEnum(Gender)
+  // gender: string;
 
-  @Transform(({ value }) => new Date(value))
-  @IsDate()
-  dateOfBirth: Date;
+  // // temporary solution (is optioanl) to handle facebook login
+  // @IsOptional()
+  // @Transform(({ value }) => new Date(value))
+  // @IsDate()
+  // dateOfBirth: Date;
 
   @IsString()
   @IsOptional()
@@ -41,10 +43,4 @@ export class SignUpDto {
   @IsNotEmpty()
   @IsString()
   password: string;
-
-
-
 }
-
-
-

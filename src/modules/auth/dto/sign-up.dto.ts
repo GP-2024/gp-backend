@@ -25,16 +25,14 @@ export class SignUpDto {
   @MinLength(3)
   lastName: string;
 
-  // // temporary solution (is optioanl) to handle facebook login
-  // @IsOptional()
-  // @IsEnum(Gender)
-  // gender: string;
+  @IsOptional()
+  @IsEnum(Gender)
+  gender: string;
 
-  // // temporary solution (is optioanl) to handle facebook login
-  // @IsOptional()
-  // @Transform(({ value }) => new Date(value))
-  // @IsDate()
-  // dateOfBirth: Date;
+  @IsOptional()
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  dateOfBirth: Date;
 
   @IsString()
   @IsOptional()

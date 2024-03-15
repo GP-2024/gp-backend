@@ -16,7 +16,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     configservice: ConfigService,
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
-    private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {
     super({
@@ -36,6 +35,8 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       lastName: name.familyName,
       username: profile.displayName,
       password: createDefaultPassword(),
+      gender: null,
+      dateOfBirth: null,
     };
 
     const existingUser = await this.userRepository.findOne({ where: { email: user.email } });

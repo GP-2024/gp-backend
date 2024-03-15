@@ -28,12 +28,10 @@ export class UserService {
     return { data: users[0], total: users[1] };
   }
 
-
   async createUserAccount(userAccount: Partial<Users>): Promise<Users> {
     const userLoginAccount = this.userAccountRepository.create(userAccount);
     return await this.userAccountRepository.save(userLoginAccount);
   }
-
 
   async findUserByEmail(email: string) {
     const user = await this.userAccountRepository.findOne({
@@ -46,6 +44,4 @@ export class UserService {
     }
     return { data: user };
   }
-
-
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { JwtPayload, Tokens } from './types';
@@ -62,7 +62,11 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    return await this.getTokens(userId, email);
+    const tokens: Tokens = await this.getTokens(userId, email);
+
+    await this.insertRefreshToken(userId, tokens.refresh_token);
+
+    return tokens;
   }
 
   async getTokens(userId: string, email: string): Promise<Tokens> {
@@ -86,5 +90,11 @@ export class AuthService {
       access_token: at,
       refresh_token: rt,
     };
+  }
+
+  async insertRefreshToken(userID: string, refreshToken: string): Promise<void> {
+    const user = (await this.userService.findOne(userID)).data;
+    user.refreshToken = await argon2.hash(refreshToken, { hashLength: +process.env.ARFON_HASH_LENGTH });
+    await user.save();
   }
 }

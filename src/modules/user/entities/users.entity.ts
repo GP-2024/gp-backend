@@ -1,5 +1,5 @@
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsDate, IsEnum, IsOptional, IsString, Length, MinLength } from "class-validator";
+import { IsDate, IsEnum, IsOptional, IsString, Length, MinLength } from 'class-validator';
 import GeneralEntity from 'src/interfaces/generalEntity';
 import { Column, Entity } from 'typeorm';
 
@@ -53,5 +53,5 @@ export class Users extends GeneralEntity {
   @Column({ type: 'varchar', nullable: true })
   @IsString()
   @IsOptional()
-  refreshToken?: string
+  refreshToken?: string;
 }

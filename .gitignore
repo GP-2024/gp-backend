@@ -38,4 +38,5 @@ lerna-debug.log*
 
 # ENV
 .env
+.env.dev
 .eslintrc.js

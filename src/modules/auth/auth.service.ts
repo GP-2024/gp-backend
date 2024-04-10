@@ -22,9 +22,7 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDto): Promise<{ message: string }> {
     const userExist = await this.userRepository.findOne({
-      where: {
-        email: signUpDto.email,
-      },
+      where: [{ email: signUpDto.email }, { username: signUpDto.username }],
     });
 
     if (userExist) {

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UUIDParam } from 'src/decorators/uuid-param.decorator';
 
@@ -14,6 +14,5 @@ export class UserController {
   findOne(@UUIDParam('id') id: string) {
     return this.userService.findOne(id);
   }
-
   // TODO: Add the rest of the CRUD operations After merge tables and entities
 }

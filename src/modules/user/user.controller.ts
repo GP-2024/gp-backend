@@ -1,6 +1,6 @@
 import { Controller, Get, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UUIDParam } from 'src/decorators/uuid-param.decorator';
+import { UUIDParam } from 'src/common/decorators/uuid-param.decorator';
 
 @Controller('user')
 export class UserController {

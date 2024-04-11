@@ -1,6 +1,6 @@
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsString, Length, MinLength } from 'class-validator';
-import GeneralEntity from 'src/interfaces/generalEntity';
+import GeneralEntity from 'src/common/interfaces/generalEntity';
 import { Column, Entity } from 'typeorm';
 
 export enum Gender {

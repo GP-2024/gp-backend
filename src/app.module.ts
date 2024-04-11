@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './modules/user/user.module';
 import TypeOrmConfig from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
+import { ApiModule } from './modules/apis/api.module';
 
 @Module({
   imports: [
@@ -12,6 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => TypeOrmConfig.getOrmConfig(configService),
     }),
+
+    ApiModule,
     AuthModule,
     UserModule,
   ],

@@ -90,9 +90,23 @@ export class AuthService {
     };
   }
 
+  async logout(userId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+    if (user.refreshToken) {
+      user.refreshToken = null;
+    }
+    await user.save();
+
+    return { message: 'logout successful' };
+  }
+
   async insertRefreshToken(userID: string, refreshToken: string): Promise<void> {
     const user = (await this.userService.findOne(userID)).data;
-    user.refreshToken = await argon2.hash(refreshToken, { hashLength: +process.env.ARFON_HASH_LENGTH });
+    user.refreshToken = await argon2.hash(refreshToken, { hashLength: +process.env.ARGON_HASH_LENGTH_REFRESH_TOKEN });
     await user.save();
   }
 }

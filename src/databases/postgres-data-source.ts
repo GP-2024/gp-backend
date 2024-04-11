@@ -3,6 +3,7 @@ import * as dotenvExpand from 'dotenv-expand';
 import { DataSource } from 'typeorm';
 
 dotenvExpand.expand(dotenv.config());
+
 export default new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST,

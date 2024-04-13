@@ -21,6 +21,13 @@ export class trefleController {
     const json = await response.json();
     return json;
   }
+
+  @Get('/get-plant-id')
+  async getPlantById(@Query('id') id: number) {
+    const response = await nodeFetch(`https://trefle.io/api/v1/plants/${id}?token=${process.env.TREFLE_API_KEY}`);
+    const json = await response.json();
+    return json;
+  }
 }
 
 //! This is the original code that was in the trefleController.ts file

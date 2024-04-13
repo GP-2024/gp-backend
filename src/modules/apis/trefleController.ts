@@ -3,16 +3,23 @@ import * as dotenvExpand from 'dotenv-expand';
 
 dotenvExpand.expand(dotenv.config());
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import nodeFetch from 'node-fetch';
 
 @Controller('trefle')
 export class trefleController {
-  @Get()
+  @Get('/get-plants')
   async getPlants() {
     const response = await nodeFetch(`https://trefle.io/api/v1/plants?token=${process.env.TREFLE_API_KEY}`);
     const json = await response.json();
     return json;
+  }
+
+  @Get('/get-plant')
+  async getPlant(@Query('name') name: string) {
+    const response = await nodeFetch(`https://trefle.io/api/v1/plants/${name}?token=${process.env.TREFLE_API_KEY}`);
+    const json = await response.json();
+    return json.data.main_species;
   }
 }
 

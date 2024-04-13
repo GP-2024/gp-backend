@@ -19,7 +19,7 @@ export class trefleController {
   async getPlant(@Query('name') name: string) {
     const response = await nodeFetch(`https://trefle.io/api/v1/plants/${name}?token=${process.env.TREFLE_API_KEY}`);
     const json = await response.json();
-    return json.data.main_species;
+    return json;
   }
 }
 

@@ -3,11 +3,13 @@ import * as dotenvExpand from 'dotenv-expand';
 
 dotenvExpand.expand(dotenv.config());
 
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, UseGuards } from '@nestjs/common';
 import nodeFetch from 'node-fetch';
 import { SearchPlantsDto } from './dto/search-plants.dto';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('trefle')
+@UseGuards(AtGuard)
 export class trefleController {
   @Get('/plants')
   async getPlants() {

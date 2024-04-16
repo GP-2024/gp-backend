@@ -46,7 +46,11 @@ export class MyPlantsService {
 
     for (const record of data) {
       if (record.id !== null && record.id !== undefined && record.id !== '') {
-        await this.perenualRepository.save(record);
+        const existingRecord = await this.perenualRepository.findOne(record.id);
+
+        if (!existingRecord) {
+          await this.perenualRepository.save(record);
+        }
       }
     }
   }

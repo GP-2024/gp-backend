@@ -7,9 +7,15 @@ import { PerenualService } from './perenual.service';
 export class PerenualController {
   constructor(private perenualService: PerenualService) {}
 
+  // TODO: Implement Filter and Pagination
   @Get('/plants-details')
   findAll() {
     return this.perenualService.findAll();
+  }
+
+  @Get('/plants-details/:id')
+  findOne(@Param('id') id: string) {
+    return this.perenualService.findOne(+id);
   }
 
   // This routes is fetching the species list from the API

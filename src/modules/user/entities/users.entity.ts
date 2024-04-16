@@ -1,7 +1,8 @@
 import { Transform, TransformFnParams } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsString, Length, MinLength } from 'class-validator';
 import GeneralEntity from 'src/common/interfaces/generalEntity';
-import { Column, Entity } from 'typeorm';
+import { MyPlants } from 'src/modules/my-plants/entities/my-plant.entity';
+import { Column, Entity, OneToOne } from 'typeorm';
 
 export enum Gender {
   MALE = 'MALE',
@@ -54,4 +55,9 @@ export class Users extends GeneralEntity {
   @IsString()
   @IsOptional()
   refreshToken?: string;
+
+  // Relations:
+
+  @OneToOne(() => MyPlants, (myPlants) => myPlants.user)
+  myPlants: MyPlants;
 }

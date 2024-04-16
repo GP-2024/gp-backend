@@ -16,6 +16,15 @@ export class PerenualService {
 
     return { data: plantsDetails[0], total: plantsDetails[1] };
   }
+  async findOne(id: number) {
+    const plantsDetails = await this.perenualRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    return { data: plantsDetails };
+  }
 
   async getSpeciesList() {
     const response = await nodeFetch(`https://perenual.com/api/species-list?key=${process.env.PERENNIAL_API_KEY}`);

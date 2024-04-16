@@ -20,7 +20,7 @@ export class MyPlantsService {
 
   //! temporary function to scrape all plants from the API, it will be modified to create a plant with the given id
   async create(id: number, user: string) {
-    for (let i = 1396; i <= 5000; i++) {
+    for (let i = 1896; i <= 5000; i++) {
       const plant = await this.perenualService.getSpeciesDetails(i);
 
       if (plant) {
@@ -46,7 +46,11 @@ export class MyPlantsService {
 
     for (const record of data) {
       if (record.id !== null && record.id !== undefined && record.id !== '') {
-        const existingRecord = await this.perenualRepository.findOne(record.id);
+        const existingRecord = await this.perenualRepository.findOne({
+          where: {
+            id: record.id,
+          },
+        });
 
         if (!existingRecord) {
           await this.perenualRepository.save(record);

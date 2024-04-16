@@ -8,6 +8,7 @@ import { ApiModule } from './modules/apis/api.module';
 import { AppController } from './app.controller';
 import { MyPlants } from './modules/my-plants/entities/my-plant.entity';
 import { MyPlantsModule } from './modules/my-plants/my-plants.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MyPlantsModule } from './modules/my-plants/my-plants.module';
     AuthModule,
     UserModule,
     MyPlantsModule,
+    BlogsModule,
   ],
   controllers: [AppController],
   providers: [],

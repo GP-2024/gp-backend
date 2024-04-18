@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from '@nestjs/class-validator';
-import { IsDate, IsEnum, IsNumber, IsOptional, MinLength } from 'class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export enum Gender {
@@ -18,11 +18,13 @@ export class SignUpDto {
   username: string;
 
   @IsString()
-  @MinLength(3)
+  @Min(3)
+  @Max(15)
   firstName: string;
 
   @IsString()
-  @MinLength(3)
+  @Min(3)
+  @Max(15)
   lastName: string;
 
   @IsOptional()

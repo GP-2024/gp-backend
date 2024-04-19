@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UpdateMyPlantDto } from './dto/update-my-plant.dto';
 import { PerenualService } from './../../modules/apis/perenual/perenual.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PerenualPlants } from '../apis/perenual/entities/perenual-details.entity';
 import { readFileSync, writeFileSync } from 'fs';
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { CreateMyPlantDto } from './dto/create-my-plant.dto';
+import { MyPlants } from './entities/my-plant.entity';
+import { Users } from '../user/entities/users.entity';
 
 @Injectable()
 export class MyPlantsService {
@@ -16,62 +15,88 @@ export class MyPlantsService {
     private perenualService: PerenualService,
     @InjectRepository(PerenualPlants)
     private perenualRepository: Repository<PerenualPlants>,
+    @InjectRepository(MyPlants)
+    private myPlantRepository: Repository<MyPlants>,
   ) {}
 
-  //! temporary function to scrape all plants from the API, it will be modified to create a plant with the given id
-  async create(id: number, user: string) {
-    for (let i = 1896; i <= 5000; i++) {
-      const plant = await this.perenualService.getSpeciesDetails(i);
+  async create(createMyPlantDto: CreateMyPlantDto, user: string) {
+    // temporary code to test the service
+    user = 'test';
 
-      if (plant) {
-        let allPlants = [];
-        try {
-          allPlants = JSON.parse(readFileSync('./all_plants.json', 'utf-8'));
-        } catch (error) {}
+    const alreadyAdded = await this.myPlantRepository.findOne({
+      where: {
+        createdBy: user,
+        Plant: {
+          id: createMyPlantDto.plantId,
+        },
+      },
+    });
 
-        if (!allPlants.some((existingPlant) => existingPlant.id === plant.id)) {
-          allPlants.push(plant);
-          writeFileSync('./all_plants.json', JSON.stringify(allPlants, null, 2));
-          console.log(`inserting plant with id: ${i}...`);
-        } else if (allPlants.some((existingPlant) => existingPlant.id === plant.id)) {
-          console.log('plant already exists with id: ', i);
-        }
-      }
-      //await this.perenualRepository.save(plant);
+    if (alreadyAdded) {
+      throw new BadRequestException('Plant already added to your plants');
     }
-  }
-  //! temporary function to insert all plants from the JSON file
-  async insertFromJson() {
-    const data = JSON.parse(readFileSync('./all_plants.json', 'utf-8'));
 
-    for (const record of data) {
-      if (record.id !== null && record.id !== undefined && record.id !== '') {
-        const existingRecord = await this.perenualRepository.findOne({
-          where: {
-            id: record.id,
-          },
-        });
+    // First Check if plant with this id exists in the perenual_plants table
+    // If not found it will throw an error
+    const plant = await this.perenualService.findOne(createMyPlantDto.plantId);
 
-        if (!existingRecord) {
-          await this.perenualRepository.save(record);
-        }
-      }
-    }
+    const newPlant = this.myPlantRepository.create({
+      Plant: plant,
+      createdBy: user,
+    });
+
+    return await this.myPlantRepository.save(newPlant);
   }
 
-  findAll() {
-    return `This action returns all myPlants`;
+  // TODO: Add filters - pagenation, search, sort
+
+  // FindAll user plants
+  async findAll() {
+    const [plants, total] = await this.myPlantRepository.findAndCount({
+      relations: ['Plant'],
+      where: {
+        createdBy: 'admin',
+      },
+    });
+    return {
+      plants,
+      total,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} myPlant`;
+  // FindOne plant by id without createdBy
+  async findOneById(id: number) {
+    return await this.myPlantRepository.findOneOrFail({
+      where: {
+        Plant: {
+          id,
+        },
+      },
+    });
   }
 
-  update(id: number, updateMyPlantDto: UpdateMyPlantDto) {
-    return `This action updates a #${id} myPlant`;
+  // FindOne plant by id with createdBy
+  async findOne(id: number) {
+    return await this.myPlantRepository.findOneOrFail({
+      where: {
+        Plant: {
+          id,
+        },
+        createdBy: 'admin',
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} myPlant`;
+  // TODO: We shoud  specify shoud we allow multiple delete or not, now we are allowing only one delete
+  async remove(id: string, user: string) {
+    // temporary code to test the service
+    user = 'admin';
+    return await this.myPlantRepository.update(
+      { id },
+      {
+        deletedAt: new Date(),
+        deletedBy: user,
+      },
+    );
   }
 }

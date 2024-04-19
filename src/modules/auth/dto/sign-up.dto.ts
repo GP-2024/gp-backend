@@ -15,16 +15,18 @@ export class SignUpDto {
 
   @IsNotEmpty()
   @IsString()
+  @MinLength(3)
+  @MaxLength(20)
   username: string;
 
   @IsString()
-  @Min(3)
-  @Max(15)
+  @MinLength(3)
+  @MaxLength(20)
   firstName: string;
 
   @IsString()
-  @Min(3)
-  @Max(15)
+  @MinLength(3)
+  @MaxLength(20)
   lastName: string;
 
   @IsOptional()

@@ -1,10 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
-
-//! Note This will be health check endpoint
+import { Controller, Get, Post, Body, UseGuards, HttpStatus, HttpCode, Request } from '@nestjs/common';
+import { version as nodeVersion } from 'process';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('/')
+@UseGuards(AuthGuard('jwt'))
 export class AppController {
-  @Get()
-  getHello(): string {
-    return 'Hello world!';
+  @Get('health')
+  checkHealth(): Record<string, unknown> {
+    return {
+      status: 'OK',
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      nodeVersion,
+    };
   }
 }

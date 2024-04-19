@@ -8,17 +8,11 @@ export class MyPlantsController {
   constructor(private readonly myPlantsService: MyPlantsService) {}
 
   @Post()
-  create(@Body() { id }, @Request() { user }) {
-    return this.myPlantsService.create(id, user);
+  create(@Body() createMyPlantDto: CreateMyPlantDto, @Request() { user }) {
+    return this.myPlantsService.create(createMyPlantDto, user);
   }
 
-  //! temporary route to insert all plants from the JSON file
-  @Post('insert-from-json')
-  async insertFromJson() {
-    await this.myPlantsService.insertFromJson();
-    return 'Data inserted from JSON file';
-  }
-
+  // TODO: Add filters - pagenation, search, sort
   @Get()
   findAll() {
     return this.myPlantsService.findAll();
@@ -29,13 +23,13 @@ export class MyPlantsController {
     return this.myPlantsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMyPlantDto: UpdateMyPlantDto) {
-    return this.myPlantsService.update(+id, updateMyPlantDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateMyPlantDto: UpdateMyPlantDto) {
+  //   return this.myPlantsService.update(+id, updateMyPlantDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.myPlantsService.remove(+id);
+  @Delete()
+  remove(@Body() { id }, @Request() { user }) {
+    return this.myPlantsService.remove(id, user);
   }
 }

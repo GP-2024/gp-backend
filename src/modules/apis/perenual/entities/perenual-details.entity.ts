@@ -1,5 +1,7 @@
+import { MyPlants } from './../../../my-plants/entities/my-plant.entity';
 import GeneralEntity from 'src/common/interfaces/generalEntity';
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Users } from 'src/modules/user/entities/users.entity';
+import { Entity, Column, PrimaryColumn, ManyToMany } from 'typeorm';
 
 //! note that we don't need to extend from general entity as we are not using the common fields
 
@@ -19,7 +21,6 @@ export class PerenualPlants {
 
   @Column({ nullable: true })
   family: string;
-
 
   @Column({ nullable: true })
   type: string;

@@ -17,13 +17,13 @@ export class PerenualService {
     return { data: plantsDetails[0], total: plantsDetails[1] };
   }
   async findOne(id: number) {
-    const plantsDetails = await this.perenualRepository.findOne({
+    const plantsDetails = await this.perenualRepository.findOneOrFail({
       where: {
         id,
       },
     });
 
-    return { data: plantsDetails };
+    return plantsDetails;
   }
 
   async getSpeciesList() {

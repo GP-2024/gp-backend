@@ -44,7 +44,8 @@ export class AuthController {
   @UseGuards(AtGuard)
   @Post('/local/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: string) {
+  logout(@GetCurrentUserId() userPD: object) {
+    const userId = userPD['userId'];
     return this.authService.logout(userId);
   }
 
@@ -52,7 +53,8 @@ export class AuthController {
   @UseGuards(RtGuard)
   @Post('/local/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(@GetCurrentUserId() userId: string, @GetCurrentUser('refreshToken') refreshToken: string): Promise<Tokens> {
+  refreshTokens(@GetCurrentUserId() userPD: string, @GetCurrentUser('refreshToken') refreshToken: string): Promise<Tokens> {
+    const userId = userPD['userId'];
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }

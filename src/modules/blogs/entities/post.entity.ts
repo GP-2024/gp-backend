@@ -30,7 +30,7 @@ export class Posts extends GeneralEntity {
 
   @ManyToOne(() => Users, (user) => user.id)
   @JoinColumn({ name: 'author_id' })
-  author: Users;
+  userId: Users;
 
   @OneToMany(() => Tags, (tag) => tag.id)
   tag_id: Tags;

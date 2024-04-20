@@ -22,10 +22,6 @@ export class Comments extends GeneralEntity {
   @IsEnum(StatusEnum)
   status: StatusEnum;
 
-  @ManyToOne(() => Users, (user) => user.id)
-  @JoinColumn({ name: 'author_id' })
-  author: Users;
-
   @ManyToOne(() => Posts, (post) => post.id)
   @JoinColumn({ name: 'post_id' })
   post: Posts;

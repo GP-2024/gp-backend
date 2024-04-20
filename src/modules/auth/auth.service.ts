@@ -41,6 +41,7 @@ export class AuthService {
     updateDTO.updateDtoAuth(hash, signUpDto);
 
     await this.userService.createUserAccount(signUpDto);
+    console.log(signUpDto);
     return { message: 'User Registered Successful' };
   }
 
@@ -60,17 +61,17 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    const tokens: Tokens = await this.getTokens(userId, email);
+    const tokens: Tokens = await this.getTokens(userId, userData.username);
 
     await this.insertRefreshToken(userId, tokens.refresh_token);
 
     return tokens;
   }
 
-  async getTokens(userId: string, email: string): Promise<Tokens> {
+  async getTokens(userId: string, username: string): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       sub: userId,
-      email: email,
+      username: username,
     };
 
     const [at, rt] = await Promise.all([

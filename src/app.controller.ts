@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, UseGuards, HttpStatus, HttpCode, Request }
 import { version as nodeVersion } from 'process';
 import { AuthGuard } from '@nestjs/passport';
 @Controller('/')
-@UseGuards(AuthGuard('jwt'))
 export class AppController {
   @Get('health')
   checkHealth(): Record<string, unknown> {

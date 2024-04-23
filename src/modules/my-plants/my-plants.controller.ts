@@ -9,24 +9,20 @@ export class MyPlantsController {
 
   @Post()
   create(@Body() createMyPlantDto: CreateMyPlantDto, @Request() { user }) {
-    return this.myPlantsService.create(createMyPlantDto, user);
+    return this.myPlantsService.create(createMyPlantDto, user.username);
   }
 
   // TODO: Add filters - pagenation, search, sort
   @Get()
-  findAll() {
-    return this.myPlantsService.findAll();
+  findAll(@Request() { user }) {
+    console.log(user);
+    return this.myPlantsService.findAll(user.username);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.myPlantsService.findOne(+id);
+  findOne(@Param('id') id: string, @Request() { user }) {
+    return this.myPlantsService.findOne(+id, user.username);
   }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateMyPlantDto: UpdateMyPlantDto) {
-  //   return this.myPlantsService.update(+id, updateMyPlantDto);
-  // }
 
   @Delete()
   remove(@Body() { id }, @Request() { user }) {

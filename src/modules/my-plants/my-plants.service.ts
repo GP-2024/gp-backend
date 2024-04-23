@@ -20,9 +20,6 @@ export class MyPlantsService {
   ) {}
 
   async create(createMyPlantDto: CreateMyPlantDto, user: string) {
-    // temporary code to test the service
-    user = 'test';
-
     const alreadyAdded = await this.myPlantRepository.findOne({
       where: {
         createdBy: user,
@@ -30,6 +27,7 @@ export class MyPlantsService {
           id: createMyPlantDto.plantId,
         },
       },
+      withDeleted: true,
     });
 
     if (alreadyAdded) {
@@ -51,11 +49,11 @@ export class MyPlantsService {
   // TODO: Add filters - pagenation, search, sort
 
   // FindAll user plants
-  async findAll() {
+  async findAll(user: string) {
     const [plants, total] = await this.myPlantRepository.findAndCount({
       relations: ['Plant'],
       where: {
-        createdBy: 'admin',
+        createdBy: user,
       },
     });
     return {
@@ -64,25 +62,14 @@ export class MyPlantsService {
     };
   }
 
-  // FindOne plant by id without createdBy
-  async findOneById(id: number) {
-    return await this.myPlantRepository.findOneOrFail({
-      where: {
-        Plant: {
-          id,
-        },
-      },
-    });
-  }
-
   // FindOne plant by id with createdBy
-  async findOne(id: number) {
+  async findOne(id: number, user: string) {
     return await this.myPlantRepository.findOneOrFail({
       where: {
         Plant: {
           id,
         },
-        createdBy: 'admin',
+        createdBy: user,
       },
     });
   }
@@ -90,7 +77,6 @@ export class MyPlantsService {
   // TODO: We shoud  specify shoud we allow multiple delete or not, now we are allowing only one delete
   async remove(id: string, user: string) {
     // temporary code to test the service
-    user = 'admin';
     return await this.myPlantRepository.update(
       { id },
       {

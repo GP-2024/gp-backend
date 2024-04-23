@@ -51,10 +51,10 @@ export class MyPlantsService {
   // FindAll user plants
   async findAll(user: string) {
     const [plants, total] = await this.myPlantRepository.findAndCount({
-      relations: ['Plant'],
       where: {
         createdBy: user,
       },
+      relations: ['Plant'],
     });
     return {
       plants,

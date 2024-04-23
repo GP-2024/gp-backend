@@ -22,4 +22,11 @@ export class BlogsController {
   addComment(@Body() commentDto: commentDTO, @Param('id') postID: string, @GetCurrentUserId() userPD: object) {
     return this.blogsService.addComment(commentDto, postID, userPD);
   }
+
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('/like/:id')
+  likePost(@Param('id') postID: string, @GetCurrentUserId() userPD: object) {
+    return this.blogsService.likePost(postID, userPD);
+  }
 }

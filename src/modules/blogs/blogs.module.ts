@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { BlogsController } from './blogs.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,10 +8,12 @@ import { Comments } from './entities/comment.entity';
 import { Likes } from './entities/likes.entity';
 import { UserModule } from '../user/user.module';
 import { Users } from '../user/entities/users.entity';
+import { QueueModule } from '../queues/queues.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Likes, Posts, Tags, Comments, Users]), UserModule],
+  imports: [TypeOrmModule.forFeature([Likes, Posts, Tags, Comments, Users]), UserModule, forwardRef(() => QueueModule)],
   controllers: [BlogsController],
   providers: [BlogsService],
+  exports: [BlogsService],
 })
 export class BlogsModule {}

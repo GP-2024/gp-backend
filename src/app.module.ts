@@ -8,6 +8,7 @@ import { ApiModule } from './modules/apis/api.module';
 import { AppController } from './app.controller';
 import { MyPlantsModule } from './modules/my-plants/my-plants.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
+import { QueueModule } from './modules/queues/queues.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BlogsModule } from './modules/blogs/blogs.module';
     UserModule,
     MyPlantsModule,
     BlogsModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [],

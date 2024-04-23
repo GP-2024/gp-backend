@@ -5,10 +5,6 @@ import GeneralEntity from '../../../common/interfaces/generalEntity';
 
 @Entity('likes')
 export class Likes extends GeneralEntity {
-  @ManyToOne(() => Users, (user) => user.id)
-  @JoinColumn({ name: 'user_id' })
-  user: Users;
-
   @ManyToOne(() => Posts, (post) => post.id)
   @JoinColumn({ name: 'post_id' })
   post: Posts;

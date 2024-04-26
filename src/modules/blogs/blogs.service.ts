@@ -8,7 +8,9 @@ import { Users } from '../user/entities/users.entity';
 import { commentDTO } from './dto/comment-blog.dto';
 import { Comments } from './entities/comment.entity';
 import { ProducerService } from '../queues/services/queues.producer';
-import { likeType } from '../queues/types/like.type';
+import { PAGE_SZE } from './constants';
+import { Post } from './types/post.type';
+
 var validate = require('uuid-validate');
 
 @Injectable()
@@ -86,8 +88,83 @@ export class BlogsService {
     return { message: 'Post Liked Successfully' };
   }
 
+  async dislikePost(postId: string, userPD: object) {
+    const userid = userPD['userId'];
+    const username = userPD['username'];
+
+    const postData = await this.postValidation(postId, userid);
+
+    const alreadyLiked = await this.LikesRepository.findOne({
+      where: {
+        createdBy: username.createdBy,
+        post: {
+          id: postData.id,
+        },
+      },
+    });
+
+    if (!alreadyLiked) {
+      throw new BadRequestException('This user is not Liked the post');
+    }
+
+    await this.LikesRepository.remove(alreadyLiked);
+
+    return { message: 'disliked' };
+  }
+
   async likeSave(like: any) {
     await this.LikesRepository.save(like);
+  }
+
+  async getAllPosts(page: number) {
+    if (page <= 0) {
+      throw new BadRequestException('Enter a Valid page number');
+    }
+    const offset = (page - 1) * PAGE_SZE;
+    return await this.PostsRepository.find({
+      skip: offset,
+      take: PAGE_SZE,
+    });
+  }
+
+  async getPost(postId: string, userPD: object) {
+    if (!validate(postId, 4)) {
+      throw new UnauthorizedException('Unauthorized Access');
+    }
+    const userid = userPD['userId'];
+    const username = userPD['username'];
+
+    const postData = await this.PostsRepository.findOne({
+      where: {
+        id: postId,
+      },
+    });
+
+    const likes = await this.LikesRepository.findOne({
+      where: {
+        post: {
+          id: postId,
+        },
+        createdBy: username.createdBy,
+      },
+    });
+
+    let isLiked = false;
+
+    if (likes) {
+      isLiked = true;
+    }
+
+    const post: Post = {
+      id: postId,
+      createdAt: postData.createdAt,
+      title: postData.title,
+      content: postData.content,
+      status: postData.status,
+      liked: isLiked,
+    };
+
+    return post;
   }
 
   async postValidation(postId: string, userId: string) {

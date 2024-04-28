@@ -1,6 +1,7 @@
+import { PerenualFilterDto } from './dto/perenual-filter.dto';
 import { Injectable } from '@nestjs/common';
 import nodeFetch from 'node-fetch';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { PerenualPlants } from './entities/perenual-details.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -11,11 +12,21 @@ export class PerenualService {
     private perenualRepository: Repository<PerenualPlants>,
   ) {}
 
-  async findAll() {
-    const plantsDetails = await this.perenualRepository.findAndCount();
+  async findAll(queryParams: PerenualFilterDto) {
+    let plantsDetails;
 
+    plantsDetails = await this.perenualRepository.findAndCount({
+      where: queryParams.q
+        ? [
+            { common_name: ILike(`%${queryParams.q}%`) },
+            { scientific_name: ILike(`%${queryParams.q}%`) },
+            { other_name: ILike(`%${queryParams.q}%`) },
+          ]
+        : undefined,
+    });
     return { data: plantsDetails[0], total: plantsDetails[1] };
   }
+
   async findOne(id: number) {
     const plantsDetails = await this.perenualRepository.findOneOrFail({
       where: {

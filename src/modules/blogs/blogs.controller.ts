@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param } from '@nestjs/common';
+import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param, Get, Query } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { postDTO } from './dto/post-blog.dto';
 import { AtGuard } from '../../common/guards';
@@ -28,5 +28,25 @@ export class BlogsController {
   @Post('/like/:id')
   likePost(@Param('id') postID: string, @GetCurrentUserId() userPD: object) {
     return this.blogsService.likePost(postID, userPD);
+  }
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/dislike/:id')
+  dislikePost(@Param('id') postID: string, @GetCurrentUserId() userPD: object) {
+    return this.blogsService.dislikePost(postID, userPD);
+  }
+
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/all-posts')
+  getAllPosts(@Query('page') page: number) {
+    return this.blogsService.getAllPosts(page);
+  }
+
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/post/:id')
+  getPost(@Param('id') postId: string, @GetCurrentUserId() userPD: object) {
+    return this.blogsService.getPost(postId, userPD);
   }
 }

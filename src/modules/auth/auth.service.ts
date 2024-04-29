@@ -41,7 +41,6 @@ export class AuthService {
     updateDTO.updateDtoAuth(hash, signUpDto);
 
     await this.userService.createUserAccount(signUpDto);
-    console.log(signUpDto);
     return { message: 'User Registered Successful' };
   }
 

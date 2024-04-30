@@ -140,7 +140,7 @@ export class BlogsService {
       },
     });
 
-    const likes = await this.LikesRepository.findOne({
+    const likedOrNot = await this.LikesRepository.findOne({
       where: {
         post: {
           id: postId,
@@ -151,9 +151,15 @@ export class BlogsService {
 
     let isLiked = false;
 
-    if (likes) {
+    if (likedOrNot) {
       isLiked = true;
     }
+
+    const numOfLikes = await this.LikesRepository.count({
+      where: {
+        post: { id: postId },
+      },
+    });
 
     const post: Post = {
       id: postId,
@@ -161,6 +167,7 @@ export class BlogsService {
       title: postData.title,
       content: postData.content,
       status: postData.status,
+      numberOfLikes: numOfLikes,
       liked: isLiked,
     };
 

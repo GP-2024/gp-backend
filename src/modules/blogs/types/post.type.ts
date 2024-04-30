@@ -4,5 +4,6 @@ export type Post = {
   title: string;
   content: string;
   status: 'drafted' | 'published';
+  numberOfLikes: number;
   liked: boolean;
 };

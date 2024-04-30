@@ -22,16 +22,6 @@ export class Users extends GeneralEntity {
   @IsString()
   email: string;
 
-  // @Column({ type: 'varchar', length: 15 })
-  // @IsString()
-  // @MinLength(3)
-  // firstName: string;
-
-  // @Column({ type: 'varchar', length: 15 })
-  // @IsString()
-  // @MinLength(3)
-  // lastName: string;
-
   @Column({ type: 'enum', enum: Gender, nullable: true })
   @IsEnum(Gender)
   gender: string;

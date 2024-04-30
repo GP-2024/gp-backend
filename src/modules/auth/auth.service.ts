@@ -45,10 +45,13 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto): Promise<Tokens> {
-    const email = signInDto.email;
     const passwordPT = signInDto.password;
 
-    const userData = (await this.userService.findUserByEmail(email)).data;
+    const userDataSearchable = signInDto.email ? { email: signInDto.email } : { username: signInDto.username };
+
+    const userData = await this.userRepository.findOne({
+      where: userDataSearchable,
+    });
 
     if (!userData) {
       throw new UnauthorizedException('This user not exist');

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, HttpStatus, HttpCode, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, HttpStatus, HttpCode, Request, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -8,6 +8,7 @@ import { GetCurrentUserId } from '../../common/decorators/get-current-user-id.de
 import { AtGuard, RtGuard } from '../../common/guards';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
 import { Tokens } from './types';
+import { isValid } from './_helpers/valid';
 
 @Controller('auth')
 export class AuthController {
@@ -37,8 +38,9 @@ export class AuthController {
   @Post('/local/signin')
   @Public()
   @HttpCode(HttpStatus.OK)
-  signIn(@Body() signUpDto: SignInDto) {
-    return this.authService.signIn(signUpDto);
+  signIn(@Body() signInDto: SignInDto) {
+    isValid(signInDto.username, signInDto.email);
+    return this.authService.signIn(signInDto);
   }
 
   @UseGuards(AtGuard)

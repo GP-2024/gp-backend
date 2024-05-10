@@ -4,6 +4,7 @@ import { CreateMyPlantDto } from './dto/create-my-plant.dto';
 import { UpdateMyPlantDto } from './dto/update-my-plant.dto';
 import { AtGuard } from '../../common/guards';
 
+@UseGuards(AtGuard)
 @Controller('my-plants')
 export class MyPlantsController {
   constructor(private readonly myPlantsService: MyPlantsService) {}
@@ -15,20 +16,17 @@ export class MyPlantsController {
 
   // TODO: Add filters - pagenation, search, sort
   @Get()
-  @UseGuards(AtGuard)
   findAll(@Request() { user }) {
     console.log(user);
-    return this.myPlantsService.findAll(user.username);
+    return this.myPlantsService.findAll(user?.username);
   }
 
   @Get(':id')
-  @UseGuards(AtGuard)
   findOne(@Param('id') id: string, @Request() { user }) {
     return this.myPlantsService.findOne(+id, user.username);
   }
 
   @Delete()
-  @UseGuards(AtGuard)
   remove(@Body() { id }, @Request() { user }) {
     return this.myPlantsService.remove(id, user);
   }

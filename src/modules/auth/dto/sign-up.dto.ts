@@ -22,11 +22,13 @@ export class SignUpDto {
   @IsString()
   @MinLength(3)
   @MaxLength(20)
+  @IsOptional()
   firstName: string;
 
   @IsString()
   @MinLength(3)
   @MaxLength(20)
+  @IsOptional()
   lastName: string;
 
   @IsOptional()

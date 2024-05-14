@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, UseGuards, HttpStatus, HttpCode, Request, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  Request,
+  BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -9,6 +21,7 @@ import { AtGuard, RtGuard } from '../../common/guards';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
 import { Tokens } from './types';
 import { isValid } from './_helpers/valid';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
@@ -33,6 +46,13 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
+  }
+
+  @UseGuards(AtGuard)
+  @Post('/local/signup/dp')
+  @HttpCode(HttpStatus.CREATED)
+  uploadDp(@UploadedFile() dp: Express.Multer.File, @GetCurrentUserId() userPD: object) {
+    return this.authService.InsertDP(userPD, dp);
   }
 
   @Post('/local/signin')

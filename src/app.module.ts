@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { MyPlantsModule } from './modules/my-plants/my-plants.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { QueueModule } from './modules/queues/queues.module';
+import { S3Module } from './modules/s3/s3.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { QueueModule } from './modules/queues/queues.module';
     MyPlantsModule,
     BlogsModule,
     QueueModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [],

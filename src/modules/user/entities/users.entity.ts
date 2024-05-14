@@ -14,6 +14,16 @@ export class Users extends GeneralEntity {
   @IsString()
   username: string;
 
+  @Column({ type: 'varchar', length: 15, nullable: true })
+  @IsString()
+  @IsOptional()
+  firstName?: string;
+
+  @Column({ type: 'varchar', length: 15, nullable: true })
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
   @Column({ type: 'varchar' })
   @IsString()
   password: string;
@@ -34,6 +44,9 @@ export class Users extends GeneralEntity {
   @IsDate()
   @Transform(({ value }: TransformFnParams) => new Date(value))
   joiningDate: Date;
+
+  @Column({ type: 'boolean', default: false })
+  hasProfileImage: boolean;
 
   @Column({ type: 'varchar', nullable: true })
   @IsString()

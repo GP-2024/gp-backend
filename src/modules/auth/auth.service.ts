@@ -10,6 +10,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from '../user/entities/users.entity';
 import { Repository } from 'typeorm';
+import { S3Service } from '../s3/s3.service';
+import { signInRES } from './types/signIn.type';
+import { formatSignInResponse } from './_helpers/formatResponse';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +21,10 @@ export class AuthService {
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
     private jwtService: JwtService,
+    private s3Service: S3Service,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<{ message: string }> {
+  async signUp(signUpDto: SignUpDto): Promise<{ message: string; accessToken: string }> {
     const userExist = await this.userRepository.findOne({
       where: [{ email: signUpDto.email }, { username: signUpDto.username }],
     });
@@ -39,13 +43,16 @@ export class AuthService {
     });
 
     updateDTO.updateDtoAuth(hash, signUpDto);
+    const signedUp = await this.userService.createUserAccount(signUpDto);
 
-    await this.userService.createUserAccount(signUpDto);
-    return { message: 'User Registered Successful' };
+    const tokens: Tokens = await this.getTokens(signedUp.id, signedUp.username);
+
+    return { message: 'User Registered Successful', accessToken: tokens.access_token };
   }
 
-  async signIn(signInDto: SignInDto): Promise<Tokens> {
+  async signIn(signInDto: SignInDto): Promise<signInRES> {
     const passwordPT = signInDto.password;
+    let profileIMG;
 
     const userDataSearchable = signInDto.email ? { email: signInDto.email } : { username: signInDto.username };
 
@@ -67,7 +74,14 @@ export class AuthService {
 
     await this.insertRefreshToken(userId, tokens.refresh_token);
 
-    return tokens;
+    if (userData.hasProfileImage) {
+      const bucketName = process.env.DP_BUCKET_NAME;
+      const region = process.env.AWS_REGION;
+      const userPD = { userId: userData.id, username: userData.username };
+      profileIMG = await this.s3Service.ReadIMG(userPD, bucketName, 'DP', region);
+    }
+
+    return formatSignInResponse(userData, profileIMG, tokens);
   }
 
   async getTokens(userId: string, username: string): Promise<Tokens> {
@@ -132,5 +146,21 @@ export class AuthService {
     const user = (await this.userService.findOne(userID)).data;
     user.refreshToken = await argon2.hash(refreshToken, { hashLength: +process.env.ARGON_HASH_LENGTH_REFRESH_TOKEN });
     await user.save();
+  }
+
+  async InsertDP(userPD: object, dp: Express.Multer.File) {
+    const id = userPD['userId'];
+    const userData = await this.userRepository.findOneBy({
+      id,
+    });
+
+    if (!userData) {
+      throw new UnauthorizedException('This user not exist');
+    }
+    const bucketName = process.env.DP_BUCKET_NAME;
+    await this.s3Service.uploadIMG(userPD, dp, bucketName, 'DP');
+    userData.hasProfileImage = true;
+    await userData.save();
+    return { message: 'Profile picture successfully uploaded' };
   }
 }

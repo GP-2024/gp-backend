@@ -28,7 +28,7 @@ import { APP_GUARD } from '@nestjs/core';
        * we can override this in the controller level
        * @Throttle({ defualt: { limit: 20, ttl: 60 } })
        */
-      throttlers: [{ limit: 5, ttl: seconds(60) }],
+      throttlers: [{ limit: 20, ttl: seconds(60) }],
 
       storage: new ThrottlerStorageRedisService(
         new Redis({

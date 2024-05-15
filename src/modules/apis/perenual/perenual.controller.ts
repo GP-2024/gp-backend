@@ -2,9 +2,11 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AtGuard } from 'src/common/guards';
 import { PerenualService } from './perenual.service';
 import { PerenualFilterDto } from './dto/perenual-filter.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('perenual')
 @UseGuards(AtGuard)
+@Throttle({ default: { limit: 30, ttl: 60 } })
 export class PerenualController {
   constructor(private perenualService: PerenualService) {}
 

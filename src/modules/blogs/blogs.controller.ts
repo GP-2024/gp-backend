@@ -39,8 +39,8 @@ export class BlogsController {
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/all-posts')
-  getAllPosts(@Query('page') page: number) {
-    return this.blogsService.getAllPosts(page);
+  getAllPosts(@Query('page') page: number, @GetCurrentUserId() userPD: object) {
+    return this.blogsService.getAllPosts(page, userPD);
   }
 
   @UseGuards(AtGuard)
@@ -48,5 +48,12 @@ export class BlogsController {
   @Get('/post/:id')
   getPost(@Param('id') postId: string, @GetCurrentUserId() userPD: object) {
     return this.blogsService.getPost(postId, userPD);
+  }
+
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/blogComments/:id')
+  getCommentForPost(@Param('id') postId: string, @Query('index') index: number, @GetCurrentUserId() userPD: object) {
+    return this.blogsService.getCommentForPost(postId, index, userPD);
   }
 }

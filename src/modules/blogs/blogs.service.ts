@@ -8,7 +8,7 @@ import { Users } from '../user/entities/users.entity';
 import { commentDTO } from './dto/comment-blog.dto';
 import { Comments } from './entities/comment.entity';
 import { ProducerService } from '../queues/services/queues.producer';
-import { PAGE_SZE } from './constants';
+import { COMMENT_INDEX_SIZE, POST_PAGE_SIZE } from './constants';
 import { Post } from './types/post.type';
 
 var validate = require('uuid-validate');
@@ -116,15 +116,50 @@ export class BlogsService {
     await this.LikesRepository.save(like);
   }
 
-  async getAllPosts(page: number) {
+  async getAllPosts(page: number, userPD: object) {
+    const username = userPD['username'];
+
     if (page <= 0) {
       throw new BadRequestException('Enter a Valid page number');
     }
-    const offset = (page - 1) * PAGE_SZE;
-    return await this.PostsRepository.find({
-      skip: offset,
-      take: PAGE_SZE,
+    const offset = (page - 1) * POST_PAGE_SIZE;
+
+    const posts = await this.PostsRepository.createQueryBuilder('post')
+      .leftJoin('likes', 'like', 'like.post_id = post.id AND like.deletedAt IS NULL')
+      .leftJoin('likes', 'userLikes', `userLikes.post_id = post.id AND userLikes.createdBy = '${username}' AND userLikes.deletedAt IS NULL`)
+      .leftJoin('comments', 'comments', 'comments.post_id = post.id AND comments.deletedAt IS NULL')
+      .select([
+        'post.id AS id',
+        'post."createdAt" AS "createdAt"',
+        'post.title AS title',
+        'post.content AS content',
+        'post."createdBy" AS "createdBy"',
+        'COUNT(like.post_id) AS "numOfLikes"',
+        `COUNT(comments.post_id) AS "numOfComments"`,
+        'COUNT(userLikes.id) > 0 AS "isLikedByUser"',
+      ])
+      .where('post.status = :status', { status: StatusEnum.PUBLISHED })
+      .andWhere('post.deletedAt IS NULL')
+      .groupBy('post.id')
+      .orderBy('post.createdAt', 'DESC')
+      .offset(offset)
+      .limit(POST_PAGE_SIZE)
+      .getRawMany();
+
+    const numOfPosts = await this.PostsRepository.count({
+      where: {
+        status: StatusEnum.PUBLISHED,
+      },
     });
+
+    return {
+      posts,
+      metadata: {
+        currentPage: page,
+        postsOnPage: posts.length,
+        totalPages: Math.ceil(numOfPosts / POST_PAGE_SIZE),
+      },
+    };
   }
 
   async getPost(postId: string, userPD: object) {
@@ -139,6 +174,10 @@ export class BlogsService {
         id: postId,
       },
     });
+
+    if (!postData) {
+      throw new BadRequestException('Not a expected post');
+    }
 
     const likedOrNot = await this.LikesRepository.findOne({
       where: {
@@ -172,6 +211,30 @@ export class BlogsService {
     };
 
     return post;
+  }
+
+  async getCommentForPost(postId: string, index: number, userPD: object) {
+    if (!validate(postId, 4)) {
+      throw new UnauthorizedException('Unauthorized Access');
+    }
+    const offset = (index - 1) * COMMENT_INDEX_SIZE;
+
+    const comments = await this.CommentsRepository.createQueryBuilder('comment')
+      .select(['comment.id AS id', 'comment.createdBy AS "createdBy"', 'comment.createdAt AS "createdAt"', 'comment.content AS content'])
+      .where(`comment.post_id = '${postId}'`)
+      .skip(offset)
+      .take(COMMENT_INDEX_SIZE)
+      .getRawMany();
+
+    const commentsForPost = await this.CommentsRepository.count({
+      where: {
+        post: {
+          id: postId,
+        },
+      },
+    });
+
+    return { comments, metadata: { allComments: commentsForPost, maximumIndex: Math.ceil(commentsForPost / COMMENT_INDEX_SIZE) } };
   }
 
   async postValidation(postId: string, userId: string) {

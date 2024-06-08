@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { S3Service } from '../s3/s3.service';
 import { signInRES } from './types/signIn.type';
 import { formatSignInResponse } from './_helpers/formatResponse';
+import { UpdateProfileDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -162,5 +163,63 @@ export class AuthService {
     userData.hasProfileImage = true;
     await userData.save();
     return { message: 'Profile picture successfully uploaded' };
+  }
+
+  async updateUserInfo(updateProfileDto: UpdateProfileDto, userPD: object) {
+    const id = userPD['userId'];
+    const username = userPD['username'];
+
+    const currentUsername = await this.userRepository.findOne({
+      where: [{ id: id }],
+    });
+
+    if (!currentUsername) {
+      throw new BadRequestException('This user not exists');
+    }
+
+    if (updateProfileDto.email) {
+      const isNewEmailExist = await this.userRepository.findOne({
+        where: [{ email: updateProfileDto.email }],
+      });
+
+      if (isNewEmailExist) {
+        throw new BadRequestException('This email is already exist');
+      }
+
+      currentUsername.email = updateProfileDto.email;
+    }
+
+    if (updateProfileDto.username) {
+      const isNewUserExist = await this.userRepository.findOne({
+        where: [{ username: updateProfileDto.username }],
+      });
+
+      if (isNewUserExist) {
+        throw new BadRequestException('This username is already exist');
+      }
+      currentUsername.username = updateProfileDto.username;
+    }
+
+    const fieldsToUpdate = ['firstName', 'lastName', 'country', 'gender', 'dateOfBirth'];
+    fieldsToUpdate.forEach((field) => {
+      if (updateProfileDto[field] !== undefined) {
+        currentUsername[field] = updateProfileDto[field];
+      }
+    });
+
+    if (updateProfileDto.password) {
+      const hashType: 0 | 1 | 2 = +process.env.ARGON_TYPE as 0 | 1 | 2;
+      currentUsername.password = await argon2.hash(updateProfileDto.password, {
+        saltLength: +process.env.ARGON_SALT_LENGTH,
+        parallelism: +process.env.ARGON_PARALLELISM,
+        memoryCost: +process.env.ARGON_MEMORYCOST,
+        hashLength: +process.env.ARGON_HASH_LENGTH,
+        type: hashType,
+      });
+    }
+
+    await currentUsername.save();
+
+    return { message: 'Profile data successfully updated' };
   }
 }

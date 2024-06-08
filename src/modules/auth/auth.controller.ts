@@ -10,6 +10,7 @@ import {
   BadRequestException,
   UseInterceptors,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,6 +23,7 @@ import { GetCurrentUser } from '../../common/decorators/get-current-user.decorat
 import { Tokens } from './types';
 import { isValid } from './_helpers/valid';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateProfileDto } from './dto/update-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +48,13 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
+  }
+
+  @UseGuards(AtGuard)
+  @Put('/local/updateProfile')
+  @HttpCode(HttpStatus.CREATED)
+  updateUserInfo(@Body() updateProfileDto: UpdateProfileDto, @GetCurrentUserId() userPD: object) {
+    return this.authService.updateUserInfo(updateProfileDto, userPD);
   }
 
   @UseGuards(AtGuard)

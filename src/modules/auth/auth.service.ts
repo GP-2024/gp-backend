@@ -222,4 +222,27 @@ export class AuthService {
 
     return { message: 'Profile data successfully updated' };
   }
+
+  async myProfile(userPD: object) {
+    const id = userPD['userId'];
+    let profileIMG;
+
+    const currentUsername = await this.userRepository.findOne({
+      where: [{ id: id }],
+    });
+
+    if (!currentUsername) {
+      throw new BadRequestException('This user is not exist');
+    }
+
+    delete currentUsername.password;
+    delete currentUsername.refreshToken;
+    if (currentUsername.hasProfileImage) {
+      const bucketName = process.env.DP_BUCKET_NAME;
+      const region = process.env.AWS_REGION;
+      const userPD = { userId: currentUsername.id, username: currentUsername.username };
+      profileIMG = await this.s3Service.ReadIMG(userPD, bucketName, 'DP', region);
+    }
+    return formatSignInResponse(currentUsername, profileIMG);
+  }
 }

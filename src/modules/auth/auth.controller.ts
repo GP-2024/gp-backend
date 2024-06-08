@@ -58,6 +58,13 @@ export class AuthController {
   }
 
   @UseGuards(AtGuard)
+  @Get('/local/myProfile')
+  @HttpCode(HttpStatus.CREATED)
+  myProfile(@GetCurrentUserId() userPD: object) {
+    return this.authService.myProfile(userPD);
+  }
+
+  @UseGuards(AtGuard)
   @Post('/local/signup/dp')
   @HttpCode(HttpStatus.CREATED)
   uploadDp(@UploadedFile() dp: Express.Multer.File, @GetCurrentUserId() userPD: object) {

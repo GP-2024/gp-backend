@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { readFileSync, writeFileSync } from 'fs';
 import { PerenualService } from './perenual/perenual.service';
 import { PerenualPlants } from './perenual/entities/perenual-details.entity';
@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class ApiService {
   constructor(
+    @Inject(forwardRef(() => PerenualService))
     private readonly perenualService: PerenualService,
     @InjectRepository(PerenualPlants)
     private readonly perenualRepository: Repository<PerenualPlants>,

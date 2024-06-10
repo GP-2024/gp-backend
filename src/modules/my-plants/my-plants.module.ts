@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MyPlantsService } from './my-plants.service';
 import { MyPlantsController } from './my-plants.controller';
 import { ApiModule } from '../apis/api.module';
@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MyPlants } from './entities/my-plant.entity';
 
 @Module({
-  imports: [ApiModule, TypeOrmModule.forFeature([PerenualPlants, MyPlants])],
+  imports: [forwardRef(() => ApiModule), TypeOrmModule.forFeature([PerenualPlants, MyPlants])],
   controllers: [MyPlantsController],
   providers: [MyPlantsService, PerenualService],
 })

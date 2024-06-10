@@ -1,20 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateMyPlantDto } from './dto/update-my-plant.dto';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { PerenualService } from './../../modules/apis/perenual/perenual.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PerenualPlants } from '../apis/perenual/entities/perenual-details.entity';
-import { readFileSync, writeFileSync } from 'fs';
 import { CreateMyPlantDto } from './dto/create-my-plant.dto';
 import { MyPlants } from './entities/my-plant.entity';
-import { Users } from '../user/entities/users.entity';
 
 @Injectable()
 export class MyPlantsService {
   constructor(
+    @Inject(forwardRef(() => PerenualService))
     private perenualService: PerenualService,
-    @InjectRepository(PerenualPlants)
-    private perenualRepository: Repository<PerenualPlants>,
     @InjectRepository(MyPlants)
     private myPlantRepository: Repository<MyPlants>,
   ) {}

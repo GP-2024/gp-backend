@@ -4,15 +4,19 @@ import nodeFetch from 'node-fetch';
 import { ILike, Repository } from 'typeorm';
 import { PerenualPlants } from './entities/perenual-details.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MyPlants } from 'src/modules/my-plants/entities/my-plant.entity';
 
 @Injectable()
 export class PerenualService {
   constructor(
     @InjectRepository(PerenualPlants)
     private perenualRepository: Repository<PerenualPlants>,
+
+    @InjectRepository(MyPlants)
+    private myPlantRepository: Repository<MyPlants>,
   ) {}
 
-  async findAll(queryParams: PerenualFilterDto) {
+  async findAll(queryParams: PerenualFilterDto, user: string) {
     let plantsDetails;
 
     plantsDetails = await this.perenualRepository.findAndCount({
@@ -24,7 +28,21 @@ export class PerenualService {
           ]
         : undefined,
     });
-    return { data: plantsDetails[0], total: plantsDetails[1] };
+
+    const userPlants = await this.myPlantRepository.find({
+      where: {
+        createdBy: user,
+      },
+    });
+
+    const userPlantIds = userPlants.map((plant) => plant.plant_id);
+
+    const data = plantsDetails[0].map((plant) => ({
+      ...plant,
+      isAdded: userPlantIds.includes(plant.id),
+    }));
+
+    return { data, total: plantsDetails[1] };
   }
 
   async findOne(id: number) {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { AtGuard } from 'src/common/guards';
 import { PerenualService } from './perenual.service';
 import { PerenualFilterDto } from './dto/perenual-filter.dto';
@@ -12,8 +12,8 @@ export class PerenualController {
 
   // TODO: Implement Filter and Pagination
   @Get('/plants-details')
-  findAll(@Query() queryParams: PerenualFilterDto) {
-    return this.perenualService.findAll(queryParams);
+  findAll(@Query() queryParams: PerenualFilterDto, @Request() { user }) {
+    return this.perenualService.findAll(queryParams, user.username);
   }
 
   @Get('/plants-details/:id')

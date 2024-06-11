@@ -1,11 +1,13 @@
-import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param, Get, Query } from '@nestjs/common';
+import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param, Get, Query, UseInterceptors } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { postDTO } from './dto/post-blog.dto';
 import { AtGuard } from '../../common/guards';
 import { GetCurrentUserId } from '../../common/decorators/get-current-user-id.decorator';
 import { commentDTO } from './dto/comment-blog.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('blogs')
+@UseInterceptors(CacheInterceptor)
 export class BlogsController {
   constructor(private readonly blogsService: BlogsService) {}
 

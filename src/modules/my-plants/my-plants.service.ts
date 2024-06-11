@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMyPlantDto } from './dto/create-my-plant.dto';
 import { MyPlants } from './entities/my-plant.entity';
-
+import { MyPlantsFilterDto } from './dto/my-plants-filter.dto';
+import { Brackets } from 'typeorm';
 @Injectable()
 export class MyPlantsService {
   constructor(
@@ -44,13 +45,22 @@ export class MyPlantsService {
   // TODO: Add filters - pagenation, search, sort
 
   // FindAll user plants
-  async findAll(user: string) {
-    const [plants, total] = await this.myPlantRepository.findAndCount({
-      where: {
-        createdBy: user,
-      },
-      relations: ['Plant'],
-    });
+  async findAll(queryParams: MyPlantsFilterDto, user: string) {
+    const queryBuilder = this.myPlantRepository.createQueryBuilder('myPlant');
+
+    queryBuilder.leftJoinAndSelect('myPlant.Plant', 'plant').where('myPlant.createdBy = :user', { user });
+
+    if (queryParams.q) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('plant.common_name ILike :search').orWhere('plant.scientific_name ILike :search').orWhere('plant.other_name ILike :search');
+        }),
+        { search: `%${queryParams.q}%` },
+      );
+    }
+
+    const [plants, total] = await queryBuilder.getManyAndCount();
+
     return {
       plants,
       total,

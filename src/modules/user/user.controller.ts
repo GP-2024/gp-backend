@@ -1,8 +1,10 @@
-import { Controller, Get, Patch } from '@nestjs/common';
+import { Controller, Get, Patch, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UUIDParam } from 'src/common/decorators/uuid-param.decorator';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('user')
+@UseInterceptors(CacheInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

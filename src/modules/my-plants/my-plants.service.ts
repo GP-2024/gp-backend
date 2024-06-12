@@ -6,6 +6,10 @@ import { CreateMyPlantDto } from './dto/create-my-plant.dto';
 import { MyPlants } from './entities/my-plant.entity';
 import { MyPlantsFilterDto } from './dto/my-plants-filter.dto';
 import { Brackets } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CacheInvalidationService } from 'src/cache/cacheInvalidation.service';
+
 @Injectable()
 export class MyPlantsService {
   constructor(
@@ -13,6 +17,7 @@ export class MyPlantsService {
     private perenualService: PerenualService,
     @InjectRepository(MyPlants)
     private myPlantRepository: Repository<MyPlants>,
+    private cacheInvalidationService: CacheInvalidationService,
   ) {}
 
   async create(createMyPlantDto: CreateMyPlantDto, user: string) {
@@ -38,6 +43,8 @@ export class MyPlantsService {
       Plant: plant,
       createdBy: user,
     });
+
+    await this.cacheInvalidationService.invalidateKeys('/my-plants');
 
     return await this.myPlantRepository.save(newPlant);
   }

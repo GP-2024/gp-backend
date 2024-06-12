@@ -9,9 +9,10 @@ import { ApiService } from './api.service';
 import { MyPlantsService } from '../my-plants/my-plants.service';
 import { MyPlantsModule } from '../my-plants/my-plants.module';
 import { MyPlants } from '../my-plants/entities/my-plant.entity';
+import { CacheModule } from 'src/cache/cache.module';
 
 @Module({
-  imports: [forwardRef(() => MyPlantsModule), TypeOrmModule.forFeature([PerenualPlants, MyPlants])],
+  imports: [forwardRef(() => MyPlantsModule), TypeOrmModule.forFeature([PerenualPlants, MyPlants]), CacheModule],
   controllers: [trefleController, PerenualController, ApiController],
   providers: [PerenualService, ApiService, MyPlantsService],
   exports: [ApiService],

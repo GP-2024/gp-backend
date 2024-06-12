@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Likes } from './entities/likes.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,9 @@ import { Comments } from './entities/comment.entity';
 import { ProducerService } from '../queues/services/queues.producer';
 import { COMMENT_INDEX_SIZE, POST_PAGE_SIZE } from './constants';
 import { Post } from './types/post.type';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CacheInvalidationService } from 'src/cache/cacheInvalidation.service';
 
 var validate = require('uuid-validate');
 
@@ -29,6 +32,8 @@ export class BlogsService {
     private readonly CommentsRepository: Repository<Comments>,
 
     private producerService: ProducerService,
+
+    private cacheInvalidationService: CacheInvalidationService,
   ) {}
 
   async addPost(postDto: postDTO, userPD: object) {
@@ -47,6 +52,8 @@ export class BlogsService {
     const post = { ...postDto, createdBy: username, status: StatusEnum.PUBLISHED };
 
     const savedPost = await this.PostsRepository.save(post);
+
+    await this.cacheInvalidationService.invalidateKeys('/blogs/all-posts');
 
     return { message: 'Post Created Successfully', postId: savedPost.id };
   }

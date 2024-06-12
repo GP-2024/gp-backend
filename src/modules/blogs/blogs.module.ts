@@ -9,9 +9,11 @@ import { Likes } from './entities/likes.entity';
 import { UserModule } from '../user/user.module';
 import { Users } from '../user/entities/users.entity';
 import { QueueModule } from '../queues/queues.module';
+import { CacheInvalidationService } from 'src/cache/cacheInvalidation.service';
+import { CacheModule } from 'src/cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Likes, Posts, Tags, Comments, Users]), UserModule, forwardRef(() => QueueModule)],
+  imports: [TypeOrmModule.forFeature([Likes, Posts, Tags, Comments, Users]), UserModule, forwardRef(() => QueueModule), CacheModule],
   controllers: [BlogsController],
   providers: [BlogsService],
   exports: [BlogsService],

@@ -5,6 +5,7 @@ import { AtGuard } from '../../common/guards';
 import { GetCurrentUserId } from '../../common/decorators/get-current-user-id.decorator';
 import { commentDTO } from './dto/comment-blog.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { SearchDTO } from './dto/search-blog.dto';
 
 @Controller('blogs')
 @UseInterceptors(CacheInterceptor)
@@ -41,8 +42,8 @@ export class BlogsController {
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/all-posts')
-  getAllPosts(@Query('page') page: number, @GetCurrentUserId() userPD: object) {
-    return this.blogsService.getAllPosts(page, userPD);
+  getAllPosts(@Query('page') page: number, @GetCurrentUserId() userPD: object, @Query('q') searchDTO: SearchDTO) {
+    return this.blogsService.getAllPosts(page, userPD, searchDTO);
   }
 
   @UseGuards(AtGuard)

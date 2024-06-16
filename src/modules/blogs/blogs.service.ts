@@ -10,9 +10,8 @@ import { Comments } from './entities/comment.entity';
 import { ProducerService } from '../queues/services/queues.producer';
 import { COMMENT_INDEX_SIZE, POST_PAGE_SIZE } from './constants';
 import { Post } from './types/post.type';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import { CacheInvalidationService } from 'src/cache/cacheInvalidation.service';
+import { SearchDTO } from './dto/search-blog.dto';
 
 var validate = require('uuid-validate');
 
@@ -123,35 +122,38 @@ export class BlogsService {
     await this.LikesRepository.save(like);
   }
 
-  async getAllPosts(page: number, userPD: object) {
+  async getAllPosts(page: number, userPD: object, searchDTO: SearchDTO) {
     const username = userPD['username'];
+    const searchKey = searchDTO;
 
     if (page <= 0) {
       throw new BadRequestException('Enter a Valid page number');
     }
     const offset = (page - 1) * POST_PAGE_SIZE;
-
-    const posts = await this.PostsRepository.createQueryBuilder('post')
+    let query = this.PostsRepository.createQueryBuilder('post')
       .leftJoin('likes', 'like', 'like.post_id = post.id AND like.deletedAt IS NULL')
-      .leftJoin('likes', 'userLikes', `userLikes.post_id = post.id AND userLikes.createdBy = '${username}' AND userLikes.deletedAt IS NULL`)
+      .leftJoin('likes', 'userLikes', `userLikes.post_id = post.id AND userLikes.createdBy = :username AND userLikes.deletedAt IS NULL`, { username })
       .leftJoin('comments', 'comments', 'comments.post_id = post.id AND comments.deletedAt IS NULL')
       .select([
         'post.id AS id',
-        'post."createdAt" AS "createdAt"',
+        'post.createdAt AS "createdAt"',
         'post.title AS title',
         'post.content AS content',
-        'post."createdBy" AS "createdBy"',
-        'COUNT(like.post_id) AS "numOfLikes"',
-        `COUNT(comments.post_id) AS "numOfComments"`,
+        'post.createdBy AS "createdBy"',
+        'COUNT(like.id) AS "numOfLikes"',
+        'COUNT(comments.id) AS "numOfComments"',
         'COUNT(userLikes.id) > 0 AS "isLikedByUser"',
       ])
       .where('post.status = :status', { status: StatusEnum.PUBLISHED })
-      .andWhere('post.deletedAt IS NULL')
-      .groupBy('post.id')
-      .orderBy('post.createdAt', 'DESC')
-      .offset(offset)
-      .limit(POST_PAGE_SIZE)
-      .getRawMany();
+      .andWhere('post.deletedAt IS NULL');
+
+    if (searchKey) {
+      query.andWhere(`content_search @@ to_tsquery(:searchKey)`, { searchKey });
+    }
+
+    query.groupBy('post.id').orderBy('post.createdAt', 'DESC').offset(offset).limit(POST_PAGE_SIZE);
+
+    const posts = await query.getRawMany();
 
     const numOfPosts = await this.PostsRepository.count({
       where: {

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import GeneralEntity from '../../../common/interfaces/generalEntity';
 import { IsEnum, IsString, MinLength } from 'class-validator';
 import { Users } from '../../user/entities/users.entity';
@@ -9,6 +9,7 @@ export enum StatusEnum {
   DRAFTED = 'drafted',
 }
 @Entity('posts')
+@Index('content_search_vector_idx', { synchronize: false })
 export class Posts extends GeneralEntity {
   @Column({ type: 'varchar', length: 20 })
   @IsString()

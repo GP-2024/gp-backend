@@ -10,6 +10,8 @@ export function formatSignInResponse(userData: Users, profileIMG: string | undef
       firstName: userData.firstName ?? undefined,
       lastName: userData.lastName ?? undefined,
       profileIMG: profileIMG ?? undefined,
+      country: userData.country ?? undefined,
+      dateOfBirth: userData.dateOfBirth ?? undefined,
     },
     tokens: {
       access_token: tokens?.access_token,

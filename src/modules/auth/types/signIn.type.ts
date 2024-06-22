@@ -6,6 +6,8 @@ export type signIn = {
   firstName?: string;
   lastName?: string;
   profileIMG?: string;
+  country?: string;
+  dateOfBirth?: Date;
 };
 
 export type signInRES = {

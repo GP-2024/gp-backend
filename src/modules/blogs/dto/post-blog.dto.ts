@@ -5,7 +5,7 @@ export class postDTO {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
-  @MaxLength(20)
+  @MaxLength(50)
   title: string;
 
   @IsNotEmpty()

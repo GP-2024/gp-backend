@@ -11,7 +11,7 @@ export enum StatusEnum {
 @Entity('posts')
 @Index('content_search_vector_idx', { synchronize: false })
 export class Posts extends GeneralEntity {
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 50 })
   @IsString()
   @MinLength(3)
   title: string;

@@ -21,6 +21,10 @@ export class Posts extends GeneralEntity {
   @MinLength(3)
   content: string;
 
+  @Column()
+  @IsString()
+  img_count: number;
+
   @Column({
     type: 'enum',
     enum: StatusEnum,

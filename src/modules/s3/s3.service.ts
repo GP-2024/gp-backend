@@ -9,6 +9,7 @@ import { getUrlFromBucket } from './utilits/getUrl';
 export class S3Service {
   private readonly config: any;
   private readonly s3Client: any;
+
   constructor(configservice: ConfigService) {
     dotenv.config();
 
@@ -23,30 +24,63 @@ export class S3Service {
     this.s3Client = new S3Client(this.config);
   }
 
-  async uploadIMG(userPD: object, file: Express.Multer.File, bucketName: string, type: 'DP' | 'BLOG', blogPD?: object) {
+  async uploadIMG(
+    userPD: object,
+    file: Express.Multer.File | undefined,
+    bucketName: string,
+    type: 'DP' | 'BLOG',
+    blogId?: string,
+    images?: Express.Multer.File[],
+  ) {
     let objPath: string, objExt: string;
-    const id = userPD['userId'];
-    const username = userPD['username'];
     if (type === 'DP') {
+      const id = userPD['userId'];
+      const username = userPD['username'];
       objPath = `user-profile-images/${id}`;
-      objExt = file.mimetype.split('/')[1];
+      objExt = file?.mimetype.split('/')[1];
+
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: bucketName,
+          Key: `${objPath}/${username}.${objExt}`,
+          Body: file?.buffer,
+        }),
+      );
+    } else if (type === 'BLOG') {
+      if (images && images.length > 0) {
+        await Promise.all(
+          images.map((img, index) => {
+            objPath = `blog-images/${blogId}`;
+            objExt = img.mimetype.split('/')[1];
+
+            return this.s3Client.send(
+              new PutObjectCommand({
+                Bucket: bucketName,
+                Key: `${objPath}/${index + 1}.${objExt}`,
+                Body: img.buffer,
+              }),
+            );
+          }),
+        );
+      }
     }
-    await this.s3Client.send(
-      new PutObjectCommand({
-        Bucket: bucketName,
-        Key: `${objPath}/${username}.${objExt}`,
-        Body: file.buffer,
-      }),
-    );
   }
 
-  async ReadIMG(userPD: object, bucketName: string, type: 'DP' | 'BLOG', region: string) {
+  async ReadIMG(userPD: object, bucketName: string, type: 'DP' | 'BLOG', blogId?: string, index?: number) {
     try {
       const id = userPD['userId'];
       const username = userPD['username'];
       let key;
+
       if (type === 'DP') {
         key = `user-profile-images/${id}/${username}.jpeg`;
+      }
+
+      console.log('test');
+
+      if (type === 'BLOG') {
+        console.log('test');
+        key = `blog-images/${blogId}/${index}.jpeg`;
       }
 
       // S3 api call .

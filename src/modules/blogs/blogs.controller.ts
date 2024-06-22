@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param, Get, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UseGuards, HttpCode, HttpStatus, Body, Param, Get, Query, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { postDTO } from './dto/post-blog.dto';
 import { AtGuard } from '../../common/guards';
@@ -15,8 +15,9 @@ export class BlogsController {
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/new-post')
-  addPost(@Body() postDto: postDTO, @GetCurrentUserId() userPD: object) {
-    return this.blogsService.addPost(postDto, userPD);
+  addPost(@Body() postDto: postDTO, @GetCurrentUserId() userPD: object, @Req() req: Request) {
+    const images = (req as any).files || [];
+    return this.blogsService.addPost(postDto, userPD, images);
   }
 
   @UseGuards(AtGuard)
@@ -32,6 +33,7 @@ export class BlogsController {
   likePost(@Param('id') postID: string, @GetCurrentUserId() userPD: object) {
     return this.blogsService.likePost(postID, userPD);
   }
+
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/dislike/:id')

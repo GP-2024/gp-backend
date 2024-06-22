@@ -12,6 +12,8 @@ import { COMMENT_INDEX_SIZE, POST_PAGE_SIZE } from './constants';
 import { Post } from './types/post.type';
 import { CacheInvalidationService } from 'src/cache/cacheInvalidation.service';
 import { SearchDTO } from './dto/search-blog.dto';
+import { S3Service } from '../s3/s3.service';
+import * as process from 'process';
 
 var validate = require('uuid-validate');
 
@@ -20,22 +22,18 @@ export class BlogsService {
   constructor(
     @InjectRepository(Likes)
     private readonly LikesRepository: Repository<Likes>,
-
     @InjectRepository(Posts)
     private readonly PostsRepository: Repository<Posts>,
-
     @InjectRepository(Users)
     private readonly UserRepository: Repository<Users>,
-
     @InjectRepository(Comments)
     private readonly CommentsRepository: Repository<Comments>,
-
     private producerService: ProducerService,
-
     private cacheInvalidationService: CacheInvalidationService,
+    private s3Service: S3Service,
   ) {}
 
-  async addPost(postDto: postDTO, userPD: object) {
+  async addPost(postDto: postDTO, userPD: object, images: []) {
     const id = userPD['userId'];
     const username = userPD['username'];
     const user = await this.UserRepository.findOne({
@@ -48,13 +46,19 @@ export class BlogsService {
       throw new UnauthorizedException('Unauthorized Access');
     }
 
-    const post = { ...postDto, createdBy: username, status: StatusEnum.PUBLISHED };
+    const post = { ...postDto, createdBy: username, status: StatusEnum.PUBLISHED, img_count: images.length };
 
-    const savedPost = await this.PostsRepository.save(post);
+    try {
+      const savedPost = await this.PostsRepository.save(post);
+
+      await this.s3Service.uploadIMG(userPD, undefined, process.env.DP_BUCKET_NAME, 'BLOG', savedPost.id, images);
+    } catch (err) {
+      throw new Error(err);
+    }
 
     await this.cacheInvalidationService.invalidateKeys('/blogs/all-posts');
 
-    return { message: 'Post Created Successfully', postId: savedPost.id };
+    return { message: 'Post Created Successfully' };
   }
 
   async addComment(commentDto: commentDTO, postId: string, userPD: object) {
@@ -140,6 +144,7 @@ export class BlogsService {
         'post.title AS title',
         'post.content AS content',
         'post.createdBy AS "createdBy"',
+        'post.img_count AS img_count',
         'COUNT(like.id) AS "numOfLikes"',
         'COUNT(comments.id) AS "numOfComments"',
         'COUNT(userLikes.id) > 0 AS "isLikedByUser"',
@@ -155,6 +160,23 @@ export class BlogsService {
 
     const posts = await query.getRawMany();
 
+    const promises = posts.map(async (post) => {
+      const imgResults = [];
+
+      for (let i = 0; i < post.img_count; i++) {
+        console.log('test');
+        const imgData = await this.s3Service.ReadIMG(userPD, process.env.DP_BUCKET_NAME, 'BLOG', post.id, i);
+        imgResults.push(imgData);
+      }
+      delete post.img_count;
+
+      post.images = imgResults;
+
+      return post;
+    });
+
+    const postsWithData = await Promise.all(promises);
+
     const numOfPosts = await this.PostsRepository.count({
       where: {
         status: StatusEnum.PUBLISHED,
@@ -162,7 +184,7 @@ export class BlogsService {
     });
 
     return {
-      posts,
+      post: postsWithData,
       metadata: {
         currentPage: page,
         postsOnPage: posts.length,
@@ -243,7 +265,10 @@ export class BlogsService {
       },
     });
 
-    return { comments, metadata: { allComments: commentsForPost, maximumIndex: Math.ceil(commentsForPost / COMMENT_INDEX_SIZE) } };
+    return {
+      comments,
+      metadata: { allComments: commentsForPost, maximumIndex: Math.ceil(commentsForPost / COMMENT_INDEX_SIZE) },
+    };
   }
 
   async postValidation(postId: string, userId: string) {

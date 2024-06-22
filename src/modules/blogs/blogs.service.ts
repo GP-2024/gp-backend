@@ -164,7 +164,6 @@ export class BlogsService {
       const imgResults = [];
 
       for (let i = 0; i < post.img_count; i++) {
-        console.log('test');
         const imgData = await this.s3Service.ReadIMG(userPD, process.env.DP_BUCKET_NAME, 'BLOG', post.id, i);
         imgResults.push(imgData);
       }
@@ -184,7 +183,7 @@ export class BlogsService {
     });
 
     return {
-      post: postsWithData,
+      posts: postsWithData,
       metadata: {
         currentPage: page,
         postsOnPage: posts.length,
